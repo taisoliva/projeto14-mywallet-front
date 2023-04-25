@@ -5,62 +5,47 @@ import { useContext, useEffect, useState } from "react"
 import UserData from "../context/UserData"
 import axios from "axios"
 import Item from "../components/Item"
+import { useNavigate } from "react-router-dom"
 
 export default function HomePage() {
 
   const { token } = useContext(UserData)
   const { setIdUser } = useContext(UserData)
-  const { idUser } = useContext(UserData)
   const [dados, setDados] = useState([])
-  const [cadastros, setCadastros] = useState([])
+  const [nome, setNome] = useState("")
+
+  const navigate = useNavigate()
+
+  useEffect(()=>{
+    if(!token){
+      navigate("/")
+    }
+  })
+
 
   useEffect(() => {
     const config = {
       headers: { Authorization: `Bearer ${token}` }
     }
 
+    axios.get(`${process.env.REACT_APP_API_URL}cadastro`, config)
+      .then(res => { console.log(res.data); setNome(res.data[0].name) })
+      .catch(err => { console.log(err.response.data); navigate("/"); return })
+
     axios.get(`${process.env.REACT_APP_API_URL}registros`, config)
-      .then(res => { setDados(res.data) })
-      .catch(err => { console.log(err) })
+      .then(res => { console.log(res.data); setDados(res.data); })
+      .catch(err => { console.log(err.response.data);  navigate("/"); return })
 
-    axios.get(`${process.env.REACT_APP_API_URL}`, config)
-      .then(res => { setIdUser(res.data[res.data.length - 1].idUsuario) })
-      .catch(err => { console.log(err) })
+  }, [token, setIdUser, navigate])
 
-    axios.get(`${process.env.REACT_APP_API_URL}cadastro`)
-      .then(res => { setCadastros(res.data); })
-      .catch(err => console.log(err))
-  }, [token, setIdUser])
-
-
-  if (cadastros.length === 0 || dados.length === 0) {
-    console.log("oi")
-    return
+  function entrada() {
+    console.log("entrada")
+    navigate("/nova-transacao/entrada")
   }
 
-  console.log(dados)
-  console.log(idUser)
-  console.log(cadastros)
-
-  function buscaName() {
-
-    if (cadastros.length === 0) return
-    const array = cadastros.filter((item) => {
-      if (item._id === idUser) {
-        return true
-      }
-    })
-    return array[0].name
-  }
-
-  function buscaRegistro() {
-
-    if (dados.length === 0) return
-    const array = dados.filter((item) => {
-      if (item.idUsuario === idUser) return true
-    })
-
-    return array
+  function saida() {
+    console.log("saida")
+    navigate("/nova-transacao/saida")
   }
 
   function saldo() {
@@ -68,48 +53,53 @@ export default function HomePage() {
     let saldo = 0
     if (dados.length === 0) return saldo
 
-   dados.forEach((item) => {
-    if(item.tipo === "saida"){
-      saldo = saldo - item.valor
-    } else{
-      saldo = saldo + item.valor
-    }
-   })
+    dados.forEach((item) => {
+      if (item.tipo === "saida") {
+        saldo = saldo - Number(Number(item.valor).toFixed(2))
+      } else {
+        saldo = saldo + Number(Number(item.valor).toFixed(2))
+      }
+    })
     return saldo
-    
-  }
 
-  const registro = buscaRegistro()
+  }
 
   return (
     <HomeContainer>
       <Header>
-        <h1>Olá, {buscaName()}</h1>
-        <BiExit />
+        <h1>Olá, {nome}</h1>
+        <BiExit onClick={()=> navigate("/")}/>
       </Header>
 
-      <TransactionsContainer>
-        <ul>
-          {registro.map(item => <Item key={item._id}
-            valor={item.valor}
-            descricao={item.descricao}
-            tipo={item.tipo}>
-          </Item>)}
-        </ul>
+      <TransactionsContainer show={dados.length === 0}>
+
+        <ContainerArticle>
+          {dados.length === 0 ? <Text>  Não há registros de entrada ou saída </Text> :
+            <ul>
+              {dados.map(item => <Item key={item._id}
+                date={item.date}
+                valor={item.valor}
+                descricao={item.descricao}
+                tipo={item.tipo}>
+              </Item>)}
+            </ul>}
+        </ ContainerArticle>
 
         <article>
           <strong>Saldo</strong>
-          <Value color={saldo() >= 0 }>{saldo()}</Value>
+          <Value color={saldo() >= 0}>{saldo()}</Value>
         </article>
+
+
       </TransactionsContainer>
 
 
       <ButtonsContainer>
-        <button>
+        <button onClick={entrada}>
           <AiOutlinePlusCircle />
           <p>Nova <br /> entrada</p>
         </button>
-        <button>
+        <button onClick={saida}>
           <AiOutlineMinusCircle />
           <p>Nova <br />saída</p>
         </button>
@@ -134,17 +124,23 @@ const Header = styled.header`
   color: white;
 `
 const TransactionsContainer = styled.article`
-  flex-grow: 1;
+  /* flex-grow: 1; */
   background-color: #fff;
   color: #000;
   border-radius: 5px;
   padding: 16px;
   display: flex;
   flex-direction: column;
+  height: 60vh;
   justify-content: space-between;
+
+  
+
   article {
-    display: flex;
+    display: ${props => props.show ? "none" : "flex"};
     justify-content: space-between;   
+    
+  
     strong {
       font-weight: 700;
       text-transform: uppercase;
@@ -175,15 +171,34 @@ const Value = styled.div`
   text-align: right;
   color: ${(props) => (props.color ? "green" : "red")};
 `
-const ListItemContainer = styled.li`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-  color: #000000;
-  margin-right: 10px;
-  div span {
-    color: #c6c6c6;
-    margin-right: 10px;
-  }
+
+const Text = styled.div`
+    width: 43vw;
+    height: 70px;
+    margin: 25vh auto;
+    padding-right: 60px;
+    padding-left: 85px;
+
+    color: #868686;
+    display: flex;
+    flex-wrap: wrap;
+   
+    position: absolute;
+    left: 0;
+   
+    font-family: 'Raleway';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 17px;
+    line-height: 22px;
+    text-align: center;
+    
+`
+const ContainerArticle = styled.div`
+
+    overflow-y: scroll;
+   
+    
+    
+
 `

@@ -1,11 +1,11 @@
 import styled from "styled-components"
 
-export default function Item({valor, descricao,tipo}) {
+export default function Item({date, valor, descricao,tipo}) {
     return (
         <>
             <ListItemContainer>
                 <div>
-              <span>30/11</span>
+              <span>{date}</span>
               <strong>{descricao}</strong>
             </div>
             <Value color={tipo}>{valor}</Value>
