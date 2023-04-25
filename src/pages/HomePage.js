@@ -30,11 +30,11 @@ export default function HomePage() {
 
     axios.get(`${process.env.REACT_APP_API_URL}/cadastro`, config)
       .then(res => { console.log(res.data); setNome(res.data[0].name) })
-      .catch(err => { console.log(err.response.data); navigate("/"); return })
+      .catch(err => { console.log(err.response.data)})
 
     axios.get(`${process.env.REACT_APP_API_URL}/registros`, config)
       .then(res => { console.log(res.data); setDados(res.data); })
-      .catch(err => { console.log(err.response.data);  navigate("/"); return })
+      .catch(err => { console.log(err.response.data)})
 
   }, [token, setIdUser, navigate])
 

@@ -34,7 +34,7 @@ export default function TransactionsPage() {
 
     axios.post(`${process.env.REACT_APP_API_URL}/nova-transacao/${tipo}`, body, config)
           .then(res => {console.log(res); navigate("/home")})
-          .catch(err => {alert(err.response.data); navigate("/"); return})
+          .catch(err => {alert(err.response.data)})
   }
 
   return (
