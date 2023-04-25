@@ -26,7 +26,7 @@ export default function SignUpPage() {
       return alert("Senhas Diferentes")
     }
 
-    axios.post(`${process.env.REACT_APP_API_URL}cadastro`, body)
+    axios.post(`${process.env.REACT_APP_API_URL}/cadastro`, body)
           .then(res => {console.log(res.data); navigate("/")})
           .catch(err => {alert(err)})
 

@@ -32,7 +32,7 @@ export default function TransactionsPage() {
       headers: { Authorization: `Bearer ${token}` }
     }
 
-    axios.post(`${process.env.REACT_APP_API_URL}nova-transacao/${tipo}`, body, config)
+    axios.post(`${process.env.REACT_APP_API_URL}/nova-transacao/${tipo}`, body, config)
           .then(res => {console.log(res); navigate("/home")})
           .catch(err => {alert(err.response.data); navigate("/"); return})
   }

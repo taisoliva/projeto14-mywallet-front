@@ -23,7 +23,7 @@ export default function SignInPage() {
     const body={...form}
     console.log(body)
 
-    axios.post(`${process.env.REACT_APP_API_URL}`, body)
+    axios.post(`${process.env.REACT_APP_API_URL}/`, body)
          .then(res => {console.log(res.data); setToken(res.data); navigate("/home")})
          .catch(err => {alert(err)})
 
