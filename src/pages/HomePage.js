@@ -28,11 +28,11 @@ export default function HomePage() {
       headers: { Authorization: `Bearer ${token}` }
     }
 
-    axios.get(`${process.env.REACT_APP_API_URL}cadastro`, config)
+    axios.get(`${process.env.REACT_APP_API_URL}/cadastro`, config)
       .then(res => { console.log(res.data); setNome(res.data[0].name) })
       .catch(err => { console.log(err.response.data); navigate("/"); return })
 
-    axios.get(`${process.env.REACT_APP_API_URL}registros`, config)
+    axios.get(`${process.env.REACT_APP_API_URL}/registros`, config)
       .then(res => { console.log(res.data); setDados(res.data); })
       .catch(err => { console.log(err.response.data);  navigate("/"); return })
 
